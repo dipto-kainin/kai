@@ -3,7 +3,7 @@ package main
 
 import (
 	"github.com/dipto-kainin/kai-rest-server/cmd/example"
-	"github.com/dipto-kainin/kai-rest-server/internal/kai"
+	"github.com/dipto-kainin/kai-rest-server/kai"
 )
 
 func main() {
