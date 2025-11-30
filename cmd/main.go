@@ -2,8 +2,8 @@
 package main
 
 import (
-	"github.com/dipto-kainin/kai-rest-server/cmd/example"
-	"github.com/dipto-kainin/kai-rest-server/kai"
+	"github.com/dipto-kainin/kai"
+	"github.com/dipto-kainin/kai/cmd/example"
 )
 
 func main() {

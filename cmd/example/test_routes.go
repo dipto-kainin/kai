@@ -1,7 +1,7 @@
 package example
 
 import (
-	"github.com/dipto-kainin/kai-rest-server/kai"
+	"github.com/dipto-kainin/kai"
 )
 
 func TEST_ROUTES(app *kai.App) {

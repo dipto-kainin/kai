@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dipto-kainin/kai-rest-server/kai/utils"
+	"github.com/dipto-kainin/kai/utils"
 )
 
 type Router struct {
