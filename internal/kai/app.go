@@ -12,8 +12,10 @@ type App struct {
 
 type Group struct {
 	Prefix string
-	router *Router
+	app    *App // <-- change from router *Router
 }
+
+type RouteFunc func(app *App)
 
 func NewApp() *App {
 	return &App{
@@ -29,49 +31,57 @@ func (a *App) Play(port int, message ...string) error {
 	}
 	return http.ListenAndServe(":"+strconv.Itoa(port), a.Router)
 }
-
 func (a *App) Group(prefix string) *Group {
 	return &Group{
 		Prefix: prefix,
-		router: a.Router,
+		app:    a,
 	}
 }
-
-func (a *App) GET(path string, handlers  ...HandlerFunc) {
+func (a *App) GET(path string, handlers ...HandlerFunc) {
 	a.Router.GET(path, handlers...)
 }
 
-func (g *Group) GET(path string, handlers ...HandlerFunc) {
-	fullPath := g.Prefix + path
-	g.router.GET(fullPath, handlers...)
-}
-
-func (a *App) POST(path string, handlers  ...HandlerFunc) {
+func (a *App) POST(path string, handlers ...HandlerFunc) {
 	a.Router.POST(path, handlers...)
 }
-func (g *Group) POST(path string, handlers ...HandlerFunc) {
-	fullPath := g.Prefix + path
-	g.router.POST(fullPath, handlers...)
-}
-func (a *App) PUT(path string, handlers  ...HandlerFunc) {
+
+func (a *App) PUT(path string, handlers ...HandlerFunc) {
 	a.Router.PUT(path, handlers...)
 }
-func (g *Group) PUT(path string, handlers ...HandlerFunc) {
-	fullPath := g.Prefix + path
-	g.router.PUT(fullPath, handlers...)
-}
 
-func (a *App) DELETE(path string, handlers  ...HandlerFunc) {
+func (a *App) DELETE(path string, handlers ...HandlerFunc) {
 	a.Router.DELETE(path, handlers...)
 }
-func (g *Group) DELETE(path string, handlers ...HandlerFunc) {
-	fullPath := g.Prefix + path
-	g.router.DELETE(fullPath, handlers...)
+func (g *Group) GET(path string, handlers ...HandlerFunc) {
+	full := g.Prefix + path
+	g.app.GET(full, handlers...)
+}
+func (g *Group) POST(path string, handlers ...HandlerFunc) {
+	full := g.Prefix + path
+	g.app.POST(full, handlers...)
 }
 
+func (g *Group) PUT(path string, handlers ...HandlerFunc) {
+	full := g.Prefix + path
+	g.app.PUT(full, handlers...)
+}
+func (g *Group) DELETE(path string, handlers ...HandlerFunc) {
+	full := g.Prefix + path
+	g.app.DELETE(full, handlers...)
+}
 func (a *App) Use(middleware ...HandlerFunc) {
 	a.Router.Use(middleware...)
 }
 func (g *Group) Use(middleware ...HandlerFunc) {
-	g.router.Use(middleware...)
+	g.app.Router.Use(middleware...)
+}
+func (a *App) UseRoutes(routes ...RouteFunc) {
+	for _, route := range routes {
+		route(a)
+	}
+}
+func (g *Group) UseRoutes(routes ...RouteFunc) {
+	for _, route := range routes {
+		route(g.app)
+	}
 }
