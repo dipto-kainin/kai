@@ -17,6 +17,8 @@ type Group struct {
 
 type RouteFunc func(app *App)
 
+type GroupRouteFunc func(group *Group)
+
 func NewApp() *App {
 	return &App{
 		Router: NewRouter(),
@@ -80,8 +82,8 @@ func (a *App) UseRoutes(routes ...RouteFunc) {
 		route(a)
 	}
 }
-func (g *Group) UseRoutes(routes ...RouteFunc) {
+func (g *Group) UseRoutes(routes ...GroupRouteFunc) {
 	for _, route := range routes {
-		route(g.app)
+		route(g)
 	}
 }
