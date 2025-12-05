@@ -40,6 +40,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"mime/multipart"
 	"net/http"
 )
 
@@ -244,12 +245,30 @@ func (c *Context) BodyString() (string, error) {
     return string(body), err
 }
 
-func (c *Context) BindJSON(obj any) error {
+func (c *Context) GetJSON() (map[string]any, error) {
     body, err := c.BodyBytes()
+    
     if err != nil {
-        return err
+        return nil, err
     }
-    return json.Unmarshal(body, obj)
+    var obj map[string]any
+    err = json.Unmarshal(body, &obj)
+    return obj, err
+}
+
+func (c *Context) GetFile(filename string) (multipart.File, error) {
+    if(c.Request.MultipartForm == nil) {
+        err := c.Request.ParseMultipartForm(32 << 20)
+        if err != nil {
+            return nil, err
+        }
+    }
+    file, _, err := c.Request.FormFile(filename)
+    if err != nil {
+        return nil, err
+    }
+    defer file.Close()
+    return file, nil
 }
 
 func (c *Context) Set(key string, value any) {
@@ -267,12 +286,10 @@ func (c *Context) Get(key string) (any, bool) {
 	return value, exists
 }
 
-// ServeFile serves a single file
 func (c *Context) ServeFile(filepath string) {
 	http.ServeFile(c.Writer, c.Request, filepath)
 }
 
-// Redirect performs an HTTP redirect
 func (c *Context) Redirect(code int, location string) {
 	if code < 300 || code > 308 {
 		panic("invalid redirect code")
@@ -281,12 +298,10 @@ func (c *Context) Redirect(code int, location string) {
 	c.Status(code)
 }
 
-// Header returns the request header value
 func (c *Context) Header(key string) string {
 	return c.Request.Header.Get(key)
 }
 
-// SetHeader sets a response header
 func (c *Context) SetHeader(key, value string) {
 	c.Writer.Header().Set(key, value)
 }
