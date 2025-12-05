@@ -39,9 +39,12 @@ package kai
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 /*
@@ -97,6 +100,9 @@ type Context struct {
 
     // Errors
     Errors          []error
+
+    // File upload
+    lastFileBytes   []byte
 }
 
 func (c *Context) AddError(err error) {
@@ -256,19 +262,53 @@ func (c *Context) GetJSON() (map[string]any, error) {
     return obj, err
 }
 
+func (c *Context) ensureMultipartForm() error {
+    if c.Request.MultipartForm != nil {
+        return nil
+    }
+    return c.Request.ParseMultipartForm(32 << 20)
+}
+
 func (c *Context) GetFile(filename string) (multipart.File, error) {
-    if(c.Request.MultipartForm == nil) {
-        err := c.Request.ParseMultipartForm(32 << 20)
-        if err != nil {
-            return nil, err
-        }
+    if err := c.ensureMultipartForm(); err != nil {
+        return nil, err
     }
     file, _, err := c.Request.FormFile(filename)
     if err != nil {
         return nil, err
     }
-    defer file.Close()
     return file, nil
+}
+
+func (c *Context) GetFileBytes(filename string) ([]byte, error) {
+    file, err := c.GetFile(filename)
+    if err != nil {
+        return nil, err
+    }
+    defer file.Close()
+    data, err := io.ReadAll(file)
+    if err != nil {
+        return nil, err
+    }
+    c.lastFileBytes = data
+    return data, nil
+}
+
+func (c *Context) SaveToDest(dest string, filename string, mode int) error {
+    if len(c.lastFileBytes) == 0 {
+        if len(filename) == 0 {
+            return errors.New("no file data to save")
+        }
+        data, err := c.GetFileBytes(filename)
+        if err != nil {
+            return err
+        }
+        c.lastFileBytes = data
+    }
+    if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
+        return err
+    }
+    return os.WriteFile(dest, c.lastFileBytes, os.FileMode(mode))
 }
 
 func (c *Context) Set(key string, value any) {
