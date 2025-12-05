@@ -118,9 +118,7 @@ func (c *Context) IsAborted() bool {
     return c.aborted
 }
 
-// Next executes the next handler in the middleware chain.
-// MiddlewareIndex uses -1 as the "not started" value.
-// This implementation increments before running each handler so it works with -1 init.
+
 func (c *Context) Next() {
     for {
         c.MiddlewareIndex++
@@ -294,7 +292,7 @@ func (c *Context) GetFileBytes(filename string) ([]byte, error) {
     return data, nil
 }
 
-func (c *Context) SaveToDest(dest string, filename string, mode int) error {
+func (c *Context) SaveToDest(dest string, filename string) error {
     if len(c.lastFileBytes) == 0 {
         if len(filename) == 0 {
             return errors.New("no file data to save")
@@ -308,7 +306,7 @@ func (c *Context) SaveToDest(dest string, filename string, mode int) error {
     if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
         return err
     }
-    return os.WriteFile(dest, c.lastFileBytes, os.FileMode(mode))
+    return os.WriteFile(dest, c.lastFileBytes, 0o644)
 }
 
 func (c *Context) Set(key string, value any) {
