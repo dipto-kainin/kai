@@ -1,6 +1,10 @@
 # kai
 
-A minimal Go HTTP framework with routing, middleware, and a small context API.
+Kai is a tiny Go HTTP framework for building clean REST APIs.
+It offers method-based routing with path params and simple route groups.
+Middleware chaining is first-class with `Next()`/`Abort()` control flow.
+The context API keeps handlers short with helpers for JSON, text, files, and redirects.
+Built-in utilities cover logging, recovery, CORS, request IDs, timeouts, and rate limits.
 
 ## Features
 
