@@ -85,6 +85,10 @@ app.Use(kai.RequestID(), kai.Timeout(5*time.Second))
 
 See the example handlers in [cmd/example/test_routes.go](cmd/example/test_routes.go).
 
+## License
+
+Kai is licensed under the MIT License. The canonical license text lives in `LICENSE`, and compatible alias filenames are included so Go license detection tools can recognize the module reliably.
+
 ## Project layout
 
 ```
