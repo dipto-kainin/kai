@@ -182,7 +182,7 @@ See the example handlers in [cmd/example/test_routes.go](cmd/example/test_routes
 
 ## License
 
-Kai is licensed under the MIT License. The canonical license text lives in `LICENSE`, and compatible alias filenames are included so Go license detection tools can recognize the module reliably.
+Kai is licensed under the MIT License. The license text lives in `LICENSE`.
 
 ## Project layout
 
