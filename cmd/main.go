@@ -9,9 +9,9 @@ import (
 func main() {
 	app := kai.NewApp()
 
-	app.Use(kai.Logger(),kai.DamageControl())
+	app.Use(kai.Logger(), kai.DamageControl())
 
-	app.UseRoutes(example.TEST_ROUTES, example.TEST_ROUTES1)
+	app.UseRoutes(example.TEST_ROUTES, example.TEST_ROUTES1, example.CRUD_SHOWCASE_ROUTES)
 
 	app.GET("/hello", func(c *kai.Context) {
 		c.JSON(200, map[string]string{

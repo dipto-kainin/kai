@@ -72,6 +72,99 @@ Middleware can call `c.Next()` to continue or `c.Abort()` to stop the chain.
 app.Use(kai.RequestID(), kai.Timeout(5*time.Second))
 ```
 
+## Full CRUD and file example
+
+The project now includes a fuller example in `cmd/example/crud_showcase.go`. It demonstrates:
+
+- `GET /api/posts` to list records with optional query filters.
+- `GET /api/posts/:id` to fetch one record by path param.
+- `POST /api/posts` to create a record from JSON.
+- `PUT /api/posts/:id` to fully update a record from JSON.
+- `DELETE /api/posts/:id` to remove a record.
+- `POST /api/posts/:id/file` to upload a multipart file.
+- `GET /api/posts/:id/file` to download the uploaded file.
+- `DELETE /api/posts/:id/file` to remove the uploaded file.
+
+Run the example server:
+
+```bash
+go run ./cmd
+```
+
+List posts:
+
+```bash
+curl "http://localhost:8000/api/posts?limit=10&published=true"
+```
+
+Get one post:
+
+```bash
+curl http://localhost:8000/api/posts/1
+```
+
+Create a post:
+
+```bash
+curl -X POST http://localhost:8000/api/posts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Write docs",
+    "content": "Document the framework with realistic examples.",
+    "published": false
+  }'
+```
+
+Update a post:
+
+```bash
+curl -X PUT http://localhost:8000/api/posts/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Ship the first endpoint",
+    "content": "The example now shows full CRUD plus files.",
+    "published": true
+  }'
+```
+
+Delete a post:
+
+```bash
+curl -X DELETE http://localhost:8000/api/posts/1
+```
+
+Upload a file to a post:
+
+```bash
+curl -X POST http://localhost:8000/api/posts/2/file \
+  -F "file=@./README.md"
+```
+
+Download that file:
+
+```bash
+curl -OJ http://localhost:8000/api/posts/2/file
+```
+
+Delete that file:
+
+```bash
+curl -X DELETE http://localhost:8000/api/posts/2/file
+```
+
+Example JSON response from `GET /api/posts/1`:
+
+```json
+{
+  "id": 1,
+  "title": "Ship the first endpoint",
+  "content": "This seeded record helps you try GET and PUT immediately.",
+  "published": true,
+  "created_at": "2026-04-14T10:00:00Z",
+  "updated_at": "2026-04-14T10:00:00Z"
+}
+```
+
 ## Context helpers
 
 - `Param(key)` for path params.
@@ -79,6 +172,8 @@ app.Use(kai.RequestID(), kai.Timeout(5*time.Second))
 - `BodyBytes()` and `BodyString()`.
 - `JSON(code, obj)`, `String(code, message)`, `Status(code)`.
 - `Set(key, value)` / `Get(key)` for request-scoped data.
+- `GetJSON()` for simple JSON request parsing.
+- `GetFileBytes(fieldName)`, `SaveToDest(dest, fieldName)` for multipart uploads.
 - `ServeFile(path)`, `Redirect(code, location)`.
 
 ## Example routes
